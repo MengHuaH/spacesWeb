@@ -391,11 +391,15 @@ export class TodoListsClient implements ITodoListsClient {
 
 export interface IUserClient {
 
-    getUser(phoneNumber: number): Promise<Users>;
+    getUserList(pageNumber: number, pageSize: number): Promise<PaginatedListOfUsers>;
 
     createUser(command: CreateUserCommand): Promise<number>;
 
-    updateUser(id: number, command: UpdateUserCommand): Promise<void>;
+    updateUser(command: UpdateUserCommand): Promise<void>;
+
+    getUser(phoneNumber: number): Promise<Users>;
+
+    updateMoney(command: UpdateUserMoneyCommand): Promise<void>;
 
     deleteUser(id: number): Promise<void>;
 }
@@ -410,11 +414,16 @@ export class UserClient implements IUserClient {
         this.baseUrl = baseUrl ?? "https://localhost:5001";
     }
 
-    getUser(phoneNumber: number): Promise<Users> {
-        let url_ = this.baseUrl + "/api/User/{PhoneNumber}";
-        if (phoneNumber === undefined || phoneNumber === null)
-            throw new Error("The parameter 'phoneNumber' must be defined.");
-        url_ = url_.replace("{PhoneNumber}", encodeURIComponent("" + phoneNumber));
+    getUserList(pageNumber: number, pageSize: number): Promise<PaginatedListOfUsers> {
+        let url_ = this.baseUrl + "/api/User?";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -425,18 +434,18 @@ export class UserClient implements IUserClient {
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processGetUser(_response);
+            return this.processGetUserList(_response);
         });
     }
 
-    protected processGetUser(response: Response): Promise<Users> {
+    protected processGetUserList(response: Response): Promise<PaginatedListOfUsers> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Users.fromJS(resultData200);
+            result200 = PaginatedListOfUsers.fromJS(resultData200);
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -444,7 +453,7 @@ export class UserClient implements IUserClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<Users>(null as any);
+        return Promise.resolve<PaginatedListOfUsers>(null as any);
     }
 
     createUser(command: CreateUserCommand): Promise<number> {
@@ -486,12 +495,8 @@ export class UserClient implements IUserClient {
         return Promise.resolve<number>(null as any);
     }
 
-    updateUser(id: number, command: UpdateUserCommand): Promise<void> {
-        let url_ = this.baseUrl + "/api/User?";
-        if (id === undefined || id === null)
-            throw new Error("The parameter 'id' must be defined and cannot be null.");
-        else
-            url_ += "id=" + encodeURIComponent("" + id) + "&";
+    updateUser(command: UpdateUserCommand): Promise<void> {
+        let url_ = this.baseUrl + "/api/User";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(command);
@@ -510,6 +515,77 @@ export class UserClient implements IUserClient {
     }
 
     protected processUpdateUser(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getUser(phoneNumber: number): Promise<Users> {
+        let url_ = this.baseUrl + "/api/User/{PhoneNumber}";
+        if (phoneNumber === undefined || phoneNumber === null)
+            throw new Error("The parameter 'phoneNumber' must be defined.");
+        url_ = url_.replace("{PhoneNumber}", encodeURIComponent("" + phoneNumber));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetUser(_response);
+        });
+    }
+
+    protected processGetUser(response: Response): Promise<Users> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Users.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Users>(null as any);
+    }
+
+    updateMoney(command: UpdateUserMoneyCommand): Promise<void> {
+        let url_ = this.baseUrl + "/api/User/updatemoney";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateMoney(_response);
+        });
+    }
+
+    protected processUpdateMoney(response: Response): Promise<void> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
@@ -1600,6 +1676,70 @@ export interface IUpdateTodoListCommand {
     title?: string | undefined;
 }
 
+export class PaginatedListOfUsers implements IPaginatedListOfUsers {
+    items?: Users[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfUsers) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(Users.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfUsers {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfUsers();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfUsers {
+    items?: Users[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
 export class Users implements IUsers {
     id?: number;
     phoneNumber?: number;
@@ -1722,6 +1862,46 @@ export class UpdateUserCommand implements IUpdateUserCommand {
 export interface IUpdateUserCommand {
     id?: number;
     phoneNumber?: number;
+}
+
+export class UpdateUserMoneyCommand implements IUpdateUserMoneyCommand {
+    id?: number;
+    money?: number;
+
+    constructor(data?: IUpdateUserMoneyCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.money = _data["money"];
+        }
+    }
+
+    static fromJS(data: any): UpdateUserMoneyCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateUserMoneyCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["money"] = this.money;
+        return data;
+    }
+}
+
+export interface IUpdateUserMoneyCommand {
+    id?: number;
+    money?: number;
 }
 
 export class ProblemDetails implements IProblemDetails {
