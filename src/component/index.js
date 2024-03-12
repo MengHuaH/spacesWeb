@@ -1,2 +1,3 @@
 import { UserList } from './User'
-export { UserList }
+import { RoomList } from './Room'
+export { UserList, RoomList }

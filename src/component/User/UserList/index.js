@@ -54,6 +54,11 @@ const UserList = ({ props, getUserList, changedPage }) => {
       key: 'phoneNumber',
     },
     {
+      title: '用户名',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    {
       title: '账户余额',
       dataIndex: 'money',
       key: 'money',
@@ -86,8 +91,8 @@ const UserList = ({ props, getUserList, changedPage }) => {
     if (state.moneyInput == 0 && state.modalType == 'money') return;
     try {
       var client = new UserClient();
-      state.modalType == 'user' ? await client.updateUser(putUser) : await client.updateMoney(putUser)
-      getUserList()
+      tate.modalType == 'user' ? await client.updateUser(putUser) : await client.updateMoney(putUser)
+      getUserList(props.pages.pageNumber,props.pages.pageSize)
       message.success(state.modalType == 'user' ? '修改成功' : '充值成功')
     } catch (error) {
       message.error(state.modalType == 'user' ? '修改失败' : '充值失败')
@@ -97,6 +102,7 @@ const UserList = ({ props, getUserList, changedPage }) => {
   async function handleOk() {
     var putUser = state.modalType == 'user' ? {
       id: state.user.id,
+      name: state.user.name,
       phoneNumber: state.user.phoneNumber
     } : {
       id: state.user.id,
@@ -108,14 +114,15 @@ const UserList = ({ props, getUserList, changedPage }) => {
   function handleCancel() {
     dispatch({ type: 'changed_isModalOpen', data: false })
   };
-  function onChange(e) {
+  function onChange(e, type) {
     state.modalType == 'user' ?
       dispatch({
         type: 'changed_user', data: {
           id: state.user.id,
           key: state.user.key,
           money: state.user.money,
-          phoneNumber: Number(e.target.value) ? Number(e.target.value) : 0
+          name: type == 'name' ? e.target.value : state.user.name,
+          phoneNumber: type == 'phoneNumber' ? Number(e.target.value) ? Number(e.target.value) : 0 : state.user.phoneNumber
         }
       }) :
       dispatch({ type: 'changed_moneyInput', data: Number(e.target.value) ? Number(e.target.value) : 0 })
@@ -126,12 +133,12 @@ const UserList = ({ props, getUserList, changedPage }) => {
         columns={columns}
         dataSource={props?.data}
         pagination={{
-          simple:true,
+          simple: true,
           pageNumber: props.pages.pageNumber,
-          pageSize:props.pages.pageSize,
-          total:props.pages.totalCount,
-          onChange:(page, pageSize) => changedPage(page, pageSize)
-        }}/>
+          pageSize: props.pages.pageSize,
+          total: props.pages.totalCount,
+          onChange: (page, pageSize) => changedPage(page, pageSize)
+        }} />
       <Modal
         title={state.modalType == 'user' ? "修改信息" : "充值"}
         open={state.isModalOpen}
@@ -139,9 +146,14 @@ const UserList = ({ props, getUserList, changedPage }) => {
         onCancel={handleCancel}
         okText="确认"
         cancelText="取消">
+        {state.modalType == 'user' ?
+          <Row style={{ padding: '20px 50px' }}>
+            <Col span={5} style={{ textAlign: 'center', lineHeight: "31.6px" }}><span>用户名：</span></Col>
+            <Col span={19}><Input value={state.user.name} onChange={(e) => onChange(e, 'name')} /></Col>
+          </Row> : ''}
         <Row style={{ padding: '20px 50px' }}>
           <Col span={5} style={{ textAlign: 'center', lineHeight: "31.6px" }}><span>{state.modalType == 'user' ? '手机号码：' : '充值金额：'}</span></Col>
-          <Col span={19}><Input value={state.modalType == 'user' ? state.user.phoneNumber : state.moneyInput} onChange={onChange} /></Col>
+          <Col span={19}><Input value={state.modalType == 'user' ? state.user.phoneNumber : state.moneyInput} onChange={(e) => onChange(e, 'phoneNumber')} /></Col>
         </Row>
       </Modal>
     </>

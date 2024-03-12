@@ -11,6 +11,7 @@ const { Search } = Input
 
 const initialState = {
   user: {
+    userName: '',
     phoneNumber: 0,
     money: 0
   },
@@ -55,6 +56,16 @@ function reducer(state, action) {
         user: action.data
       };
     }
+    case 'def_user': {
+      return {
+        ...state,
+        user: {
+          userName: '',
+          phoneNumber: 0,
+          money: 0
+        }
+      };
+    }
     case 'changed_page': {
       return {
         ...state,
@@ -80,7 +91,7 @@ const Index = () => {
     }
   }
 
-  async function getUserList(pageNumber,pageSize) {
+  async function getUserList(pageNumber, pageSize) {
     try {
       var res = new UserClient()
       var json = await res.getUserList(pageNumber, pageSize)
@@ -103,7 +114,8 @@ const Index = () => {
       var res = new UserClient()
       await res.createUser(state.user)
       message.success('注册成功')
-      getUserList(state.pages.pageNumber,state.pages.pageSize)
+      dispatch({ type: 'def_user' })
+      getUserList(state.pages.pageNumber, state.pages.pageSize)
     }
     catch (error) {
       message.error('注册失败')
@@ -122,6 +134,7 @@ const Index = () => {
   function onChange(e, type) {
     dispatch({
       type: 'changed_user', data: {
+        userName: type == 'userName' ? e.target.value : state.user.userName,
         phoneNumber: type == 'phoneNumber' ? Number(e.target.value) ? Number(e.target.value) : 0 : state.user?.phoneNumber,
         money: type == 'money' ? Number(e.target.value) ? Number(e.target.value) : 0 : state.user?.money,
       }
@@ -137,9 +150,9 @@ const Index = () => {
         pageSize: pageSize
       }
     })
-    getUserList(page,pageSize)
+    getUserList(page, pageSize)
   }
-  useEffect(() => { getUserList(1,10); }, [])
+  useEffect(() => { getUserList(1, 10); }, [])
   return (
     <Layout props={{ menuKey: 'user' }}>
       <Card
@@ -156,6 +169,10 @@ const Index = () => {
         onCancel={handleCancel}
         okText="确认"
         cancelText="取消">
+        <Row style={{ padding: '20px 50px 10px 50px' }}>
+          <Col span={5} style={{ textAlign: 'center', lineHeight: "31.6px" }}><span>用户名：</span></Col>
+          <Col span={19}><Input value={state.user.userName} onChange={(e) => onChange(e, 'userName')} /></Col>
+        </Row>
         <Row style={{ padding: '20px 50px 10px 50px' }}>
           <Col span={5} style={{ textAlign: 'center', lineHeight: "31.6px" }}><span>手机号码：</span></Col>
           <Col span={19}><Input value={state.user.phoneNumber} onChange={(e) => onChange(e, 'phoneNumber')} /></Col>

@@ -8,6 +8,177 @@
 /* eslint-disable */
 // ReSharper disable InconsistentNaming
 
+export interface IRoomClient {
+
+    getRoomWithPagination(roomName: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfRoom>;
+
+    createRoom(command: CreateRoomCommand): Promise<Room>;
+
+    updateRoom(command: UpdateRoomCommand): Promise<void>;
+
+    deleteRoom(id: number): Promise<void>;
+}
+
+export class RoomClient implements IRoomClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl ?? "https://localhost:5001";
+    }
+
+    getRoomWithPagination(roomName: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfRoom> {
+        let url_ = this.baseUrl + "/api/Room?";
+        if (roomName !== undefined && roomName !== null)
+            url_ += "RoomName=" + encodeURIComponent("" + roomName) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetRoomWithPagination(_response);
+        });
+    }
+
+    protected processGetRoomWithPagination(response: Response): Promise<PaginatedListOfRoom> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfRoom.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfRoom>(null as any);
+    }
+
+    createRoom(command: CreateRoomCommand): Promise<Room> {
+        let url_ = this.baseUrl + "/api/Room";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateRoom(_response);
+        });
+    }
+
+    protected processCreateRoom(response: Response): Promise<Room> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = Room.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<Room>(null as any);
+    }
+
+    updateRoom(command: UpdateRoomCommand): Promise<void> {
+        let url_ = this.baseUrl + "/api/Room";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processUpdateRoom(_response);
+        });
+    }
+
+    protected processUpdateRoom(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    deleteRoom(id: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/Room/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteRoom(_response);
+        });
+    }
+
+    protected processDeleteRoom(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
 export interface ITodoItemsClient {
 
     getTodoItemsWithPagination(listId: number, pageNumber: number, pageSize: number): Promise<PaginatedListOfTodoItemBriefDto>;
@@ -1141,6 +1312,389 @@ export class WeatherForecastsClient implements IWeatherForecastsClient {
     }
 }
 
+export class PaginatedListOfRoom implements IPaginatedListOfRoom {
+    items?: Room[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfRoom) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(Room.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfRoom {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfRoom();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfRoom {
+    items?: Room[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
+export class Room implements IRoom {
+    id?: number;
+    name?: string | undefined;
+    money?: number;
+    state?: RoomState;
+    personnelSituation?: RoomPersonnelSituation;
+    powerSupply?: RoomPowerSupply;
+    orderGoods?: OrderGoods[] | undefined;
+
+    constructor(data?: IRoom) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.money = _data["money"];
+            this.state = _data["state"];
+            this.personnelSituation = _data["personnelSituation"];
+            this.powerSupply = _data["powerSupply"];
+            if (Array.isArray(_data["orderGoods"])) {
+                this.orderGoods = [] as any;
+                for (let item of _data["orderGoods"])
+                    this.orderGoods!.push(OrderGoods.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): Room {
+        data = typeof data === 'object' ? data : {};
+        let result = new Room();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["money"] = this.money;
+        data["state"] = this.state;
+        data["personnelSituation"] = this.personnelSituation;
+        data["powerSupply"] = this.powerSupply;
+        if (Array.isArray(this.orderGoods)) {
+            data["orderGoods"] = [];
+            for (let item of this.orderGoods)
+                data["orderGoods"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IRoom {
+    id?: number;
+    name?: string | undefined;
+    money?: number;
+    state?: RoomState;
+    personnelSituation?: RoomPersonnelSituation;
+    powerSupply?: RoomPowerSupply;
+    orderGoods?: OrderGoods[] | undefined;
+}
+
+export enum RoomState {
+    Open = 0,
+    Closed = 1,
+}
+
+export enum RoomPersonnelSituation {
+    Have = 0,
+    Not = 1,
+}
+
+export enum RoomPowerSupply {
+    Open = 0,
+    Closed = 1,
+}
+
+export class OrderGoods implements IOrderGoods {
+    id?: number;
+    orderId?: number;
+    roomId?: number;
+    userId?: number;
+    room?: Room;
+    user?: Users;
+    startingTime?: Date;
+    endTime?: Date;
+    createdDate?: Date;
+
+    constructor(data?: IOrderGoods) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.orderId = _data["orderId"];
+            this.roomId = _data["roomId"];
+            this.userId = _data["userId"];
+            this.room = _data["room"] ? Room.fromJS(_data["room"]) : <any>undefined;
+            this.user = _data["user"] ? Users.fromJS(_data["user"]) : <any>undefined;
+            this.startingTime = _data["startingTime"] ? new Date(_data["startingTime"].toString()) : <any>undefined;
+            this.endTime = _data["endTime"] ? new Date(_data["endTime"].toString()) : <any>undefined;
+            this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): OrderGoods {
+        data = typeof data === 'object' ? data : {};
+        let result = new OrderGoods();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["orderId"] = this.orderId;
+        data["roomId"] = this.roomId;
+        data["userId"] = this.userId;
+        data["room"] = this.room ? this.room.toJSON() : <any>undefined;
+        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
+        data["startingTime"] = this.startingTime ? this.startingTime.toISOString() : <any>undefined;
+        data["endTime"] = this.endTime ? this.endTime.toISOString() : <any>undefined;
+        data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IOrderGoods {
+    id?: number;
+    orderId?: number;
+    roomId?: number;
+    userId?: number;
+    room?: Room;
+    user?: Users;
+    startingTime?: Date;
+    endTime?: Date;
+    createdDate?: Date;
+}
+
+export class Users implements IUsers {
+    id?: number;
+    name?: string;
+    phoneNumber?: number;
+    money?: number;
+    orderGoods?: OrderGoods[] | undefined;
+
+    constructor(data?: IUsers) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.phoneNumber = _data["phoneNumber"];
+            this.money = _data["money"];
+            if (Array.isArray(_data["orderGoods"])) {
+                this.orderGoods = [] as any;
+                for (let item of _data["orderGoods"])
+                    this.orderGoods!.push(OrderGoods.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): Users {
+        data = typeof data === 'object' ? data : {};
+        let result = new Users();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["phoneNumber"] = this.phoneNumber;
+        data["money"] = this.money;
+        if (Array.isArray(this.orderGoods)) {
+            data["orderGoods"] = [];
+            for (let item of this.orderGoods)
+                data["orderGoods"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IUsers {
+    id?: number;
+    name?: string;
+    phoneNumber?: number;
+    money?: number;
+    orderGoods?: OrderGoods[] | undefined;
+}
+
+export class CreateRoomCommand implements ICreateRoomCommand {
+    name?: string;
+    money?: number;
+    state?: RoomState;
+    personnelSituation?: RoomPersonnelSituation;
+    powerSupply?: RoomPowerSupply;
+
+    constructor(data?: ICreateRoomCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.money = _data["money"];
+            this.state = _data["state"];
+            this.personnelSituation = _data["personnelSituation"];
+            this.powerSupply = _data["powerSupply"];
+        }
+    }
+
+    static fromJS(data: any): CreateRoomCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateRoomCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["money"] = this.money;
+        data["state"] = this.state;
+        data["personnelSituation"] = this.personnelSituation;
+        data["powerSupply"] = this.powerSupply;
+        return data;
+    }
+}
+
+export interface ICreateRoomCommand {
+    name?: string;
+    money?: number;
+    state?: RoomState;
+    personnelSituation?: RoomPersonnelSituation;
+    powerSupply?: RoomPowerSupply;
+}
+
+export class UpdateRoomCommand implements IUpdateRoomCommand {
+    id?: number;
+    name?: string;
+    money?: number;
+    state?: RoomState;
+    personnelSituation?: RoomPersonnelSituation;
+    powerSupply?: RoomPowerSupply;
+
+    constructor(data?: IUpdateRoomCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.money = _data["money"];
+            this.state = _data["state"];
+            this.personnelSituation = _data["personnelSituation"];
+            this.powerSupply = _data["powerSupply"];
+        }
+    }
+
+    static fromJS(data: any): UpdateRoomCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateRoomCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["money"] = this.money;
+        data["state"] = this.state;
+        data["personnelSituation"] = this.personnelSituation;
+        data["powerSupply"] = this.powerSupply;
+        return data;
+    }
+}
+
+export interface IUpdateRoomCommand {
+    id?: number;
+    name?: string;
+    money?: number;
+    state?: RoomState;
+    personnelSituation?: RoomPersonnelSituation;
+    powerSupply?: RoomPowerSupply;
+}
+
 export class PaginatedListOfTodoItemBriefDto implements IPaginatedListOfTodoItemBriefDto {
     items?: TodoItemBriefDto[];
     pageNumber?: number;
@@ -1740,52 +2294,9 @@ export interface IPaginatedListOfUsers {
     hasNextPage?: boolean;
 }
 
-export class Users implements IUsers {
-    id?: number;
-    phoneNumber?: number;
-    money?: number;
-
-    constructor(data?: IUsers) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.phoneNumber = _data["phoneNumber"];
-            this.money = _data["money"];
-        }
-    }
-
-    static fromJS(data: any): Users {
-        data = typeof data === 'object' ? data : {};
-        let result = new Users();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["phoneNumber"] = this.phoneNumber;
-        data["money"] = this.money;
-        return data;
-    }
-}
-
-export interface IUsers {
-    id?: number;
-    phoneNumber?: number;
-    money?: number;
-}
-
 export class CreateUserCommand implements ICreateUserCommand {
     phoneNumber?: number;
+    userName?: string;
     money?: number;
 
     constructor(data?: ICreateUserCommand) {
@@ -1800,6 +2311,7 @@ export class CreateUserCommand implements ICreateUserCommand {
     init(_data?: any) {
         if (_data) {
             this.phoneNumber = _data["phoneNumber"];
+            this.userName = _data["userName"];
             this.money = _data["money"];
         }
     }
@@ -1814,6 +2326,7 @@ export class CreateUserCommand implements ICreateUserCommand {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["phoneNumber"] = this.phoneNumber;
+        data["userName"] = this.userName;
         data["money"] = this.money;
         return data;
     }
@@ -1821,11 +2334,13 @@ export class CreateUserCommand implements ICreateUserCommand {
 
 export interface ICreateUserCommand {
     phoneNumber?: number;
+    userName?: string;
     money?: number;
 }
 
 export class UpdateUserCommand implements IUpdateUserCommand {
     id?: number;
+    name?: string;
     phoneNumber?: number;
 
     constructor(data?: IUpdateUserCommand) {
@@ -1840,6 +2355,7 @@ export class UpdateUserCommand implements IUpdateUserCommand {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
+            this.name = _data["name"];
             this.phoneNumber = _data["phoneNumber"];
         }
     }
@@ -1854,6 +2370,7 @@ export class UpdateUserCommand implements IUpdateUserCommand {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
+        data["name"] = this.name;
         data["phoneNumber"] = this.phoneNumber;
         return data;
     }
@@ -1861,6 +2378,7 @@ export class UpdateUserCommand implements IUpdateUserCommand {
 
 export interface IUpdateUserCommand {
     id?: number;
+    name?: string;
     phoneNumber?: number;
 }
 
