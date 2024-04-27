@@ -1,0 +1,27 @@
+.state{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.stateDiv{
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: rgb(255, 0, 0);
+}
+.state_color_red{
+    background-color: rgb(255, 0, 0);
+}
+.state_color_green{
+    background-color: rgb(0, 255, 0);
+}
+.row{
+    margin-top: 10px;
+}
+
+.inUse{
+    background-color: rgb(0, 162, 255);
+}
+.appointment{
+    background-color: rgb(255, 255, 0);
+}

@@ -12,7 +12,8 @@ const { Search } = Input
 const initialState = {
   room: {
     name: 0,
-    money: 0
+    money: 0,
+    clientId:''
   },
   roomListData: [],
   isModalOpen: false,
@@ -77,8 +78,9 @@ function reducer(state, action) {
 
 const Index = () => {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const { room, roomListData, isModalOpen,  } = state
 
-  async function getRoomList({ RoomName, pageNumber, pageSize }) {
+  async function getRoomList({ RoomName, pageNumber, pageSize, pages }) {
     try {
       var res = new RoomClient()
       var json = await res.getRoomWithPagination(RoomName, pageNumber, pageSize)
@@ -113,6 +115,7 @@ const Index = () => {
 
   async function handleOk() {
     createRoom()
+    dispatch({ type: 'changed_room', data: initialState.room })
     dispatch({ type: 'changed_isModalOpen', data: false })
   };
   function handleCancel() {
@@ -124,6 +127,7 @@ const Index = () => {
       type: 'changed_room', data: {
         name: type == 'roomName' ? e.target.value : state.room?.name,
         money: type == 'money' ? Number(e.target.value) ? Number(e.target.value) : 0 : state.room?.money,
+        clientId: type == 'clientId' ? e.target.value : state.room?.clientId,
       }
     })
   };
@@ -164,6 +168,10 @@ const Index = () => {
         <Row style={{ padding: '10px 50px 20px 50px' }}>
           <Col span={7} style={{ textAlign: 'right', lineHeight: "31.6px" }}><span>价格（小时）：</span></Col>
           <Col span={17}><Input value={state.room.money} onChange={(e) => onChange(e, 'money')} /></Col>
+        </Row>
+        <Row style={{ padding: '10px 50px 20px 50px' }}>
+          <Col span={7} style={{ textAlign: 'right', lineHeight: "31.6px" }}><span>房控设备ID：</span></Col>
+          <Col span={17}><Input value={room.clientId} onChange={(e) => onChange(e, 'clientId')} /></Col>
         </Row>
       </Modal>
     </Layout>

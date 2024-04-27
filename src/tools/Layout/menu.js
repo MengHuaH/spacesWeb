@@ -1,5 +1,9 @@
 const menu = [
     {
+        key:"/home",
+        label:"首页"
+    },
+    {
         key:"/user",
         label:"用户"
     },
@@ -11,5 +15,6 @@ const menu = [
         key:"/room",
         label:"房间"
     }
+    
 ]
 export default menu

@@ -59,6 +59,11 @@ const RoomList = ({ props, getRoomList, changedPage }) => {
       key: 'money',
     },
     {
+      title: '房控设备ID',
+      dataIndex: 'clientId',
+      key: 'clientId',
+    },
+    {
       title: '操作',
       key: 'action',
       width: 300,

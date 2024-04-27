@@ -91,7 +91,7 @@ const UserList = ({ props, getUserList, changedPage }) => {
     if (state.moneyInput == 0 && state.modalType == 'money') return;
     try {
       var client = new UserClient();
-      tate.modalType == 'user' ? await client.updateUser(putUser) : await client.updateMoney(putUser)
+      state.modalType == 'user' ? await client.updateUser(putUser) : await client.updateMoney(putUser)
       getUserList(props.pages.pageNumber,props.pages.pageSize)
       message.success(state.modalType == 'user' ? '修改成功' : '充值成功')
     } catch (error) {

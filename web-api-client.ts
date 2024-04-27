@@ -8,6 +8,144 @@
 /* eslint-disable */
 // ReSharper disable InconsistentNaming
 
+export interface IOrderGoodsClient {
+
+    getOrderGoodsWithPagination(roomId: number | null | undefined, phoneNumber: number | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfOrderGoodsListDto>;
+
+    createOrderGoods(command: CreateOrderGoodsCommand): Promise<number>;
+
+    deleteOrderGoods(id: number): Promise<void>;
+}
+
+export class OrderGoodsClient implements IOrderGoodsClient {
+    private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
+        this.http = http ? http : window as any;
+        this.baseUrl = baseUrl ?? "https://172.27.110.74:5001";
+    }
+
+    getOrderGoodsWithPagination(roomId: number | null | undefined, phoneNumber: number | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfOrderGoodsListDto> {
+        let url_ = this.baseUrl + "/api/OrderGoods?";
+        if (roomId !== undefined && roomId !== null)
+            url_ += "RoomId=" + encodeURIComponent("" + roomId) + "&";
+        if (phoneNumber !== undefined && phoneNumber !== null)
+            url_ += "PhoneNumber=" + encodeURIComponent("" + phoneNumber) + "&";
+        if (pageNumber === undefined || pageNumber === null)
+            throw new Error("The parameter 'pageNumber' must be defined and cannot be null.");
+        else
+            url_ += "PageNumber=" + encodeURIComponent("" + pageNumber) + "&";
+        if (pageSize === undefined || pageSize === null)
+            throw new Error("The parameter 'pageSize' must be defined and cannot be null.");
+        else
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetOrderGoodsWithPagination(_response);
+        });
+    }
+
+    protected processGetOrderGoodsWithPagination(response: Response): Promise<PaginatedListOfOrderGoodsListDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PaginatedListOfOrderGoodsListDto.fromJS(resultData200);
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PaginatedListOfOrderGoodsListDto>(null as any);
+    }
+
+    createOrderGoods(command: CreateOrderGoodsCommand): Promise<number> {
+        let url_ = this.baseUrl + "/api/OrderGoods";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: RequestInit = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processCreateOrderGoods(_response);
+        });
+    }
+
+    protected processCreateOrderGoods(response: Response): Promise<number> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<number>(null as any);
+    }
+
+    deleteOrderGoods(id: number): Promise<void> {
+        let url_ = this.baseUrl + "/api/OrderGoods/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "DELETE",
+            headers: {
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processDeleteOrderGoods(_response);
+        });
+    }
+
+    protected processDeleteOrderGoods(response: Response): Promise<void> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            return;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<void>(null as any);
+    }
+}
+
 export interface IRoomClient {
 
     getRoomWithPagination(roomName: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfRoom>;
@@ -26,7 +164,7 @@ export class RoomClient implements IRoomClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl ?? "https://localhost:5001";
+        this.baseUrl = baseUrl ?? "https://172.27.110.74:5001";
     }
 
     getRoomWithPagination(roomName: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfRoom> {
@@ -199,7 +337,7 @@ export class TodoItemsClient implements ITodoItemsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl ?? "https://localhost:5001";
+        this.baseUrl = baseUrl ?? "https://172.27.110.74:5001";
     }
 
     getTodoItemsWithPagination(listId: number, pageNumber: number, pageSize: number): Promise<PaginatedListOfTodoItemBriefDto> {
@@ -413,7 +551,7 @@ export class TodoListsClient implements ITodoListsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl ?? "https://localhost:5001";
+        this.baseUrl = baseUrl ?? "https://172.27.110.74:5001";
     }
 
     getTodoLists(): Promise<TodosVm> {
@@ -582,7 +720,7 @@ export class UserClient implements IUserClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl ?? "https://localhost:5001";
+        this.baseUrl = baseUrl ?? "https://172.27.110.74:5001";
     }
 
     getUserList(pageNumber: number, pageSize: number): Promise<PaginatedListOfUsers> {
@@ -835,7 +973,7 @@ export class UsersClient implements IUsersClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl ?? "https://localhost:5001";
+        this.baseUrl = baseUrl ?? "https://172.27.110.74:5001";
     }
 
     postApiUsersRegister(registration: RegisterRequest | undefined): Promise<void> {
@@ -1267,7 +1405,7 @@ export class WeatherForecastsClient implements IWeatherForecastsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl ?? "https://localhost:5001";
+        this.baseUrl = baseUrl ?? "https://172.27.110.74:5001";
     }
 
     getWeatherForecasts(): Promise<WeatherForecast[]> {
@@ -1312,15 +1450,15 @@ export class WeatherForecastsClient implements IWeatherForecastsClient {
     }
 }
 
-export class PaginatedListOfRoom implements IPaginatedListOfRoom {
-    items?: Room[];
+export class PaginatedListOfOrderGoodsListDto implements IPaginatedListOfOrderGoodsListDto {
+    items?: OrderGoodsListDto[];
     pageNumber?: number;
     totalPages?: number;
     totalCount?: number;
     hasPreviousPage?: boolean;
     hasNextPage?: boolean;
 
-    constructor(data?: IPaginatedListOfRoom) {
+    constructor(data?: IPaginatedListOfOrderGoodsListDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -1334,7 +1472,7 @@ export class PaginatedListOfRoom implements IPaginatedListOfRoom {
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items!.push(Room.fromJS(item));
+                    this.items!.push(OrderGoodsListDto.fromJS(item));
             }
             this.pageNumber = _data["pageNumber"];
             this.totalPages = _data["totalPages"];
@@ -1344,9 +1482,9 @@ export class PaginatedListOfRoom implements IPaginatedListOfRoom {
         }
     }
 
-    static fromJS(data: any): PaginatedListOfRoom {
+    static fromJS(data: any): PaginatedListOfOrderGoodsListDto {
         data = typeof data === 'object' ? data : {};
-        let result = new PaginatedListOfRoom();
+        let result = new PaginatedListOfOrderGoodsListDto();
         result.init(data);
         return result;
     }
@@ -1367,8 +1505,8 @@ export class PaginatedListOfRoom implements IPaginatedListOfRoom {
     }
 }
 
-export interface IPaginatedListOfRoom {
-    items?: Room[];
+export interface IPaginatedListOfOrderGoodsListDto {
+    items?: OrderGoodsListDto[];
     pageNumber?: number;
     totalPages?: number;
     totalCount?: number;
@@ -1376,10 +1514,67 @@ export interface IPaginatedListOfRoom {
     hasNextPage?: boolean;
 }
 
+export class OrderGoodsListDto implements IOrderGoodsListDto {
+    id?: number;
+    room?: Room | undefined;
+    user?: Users | undefined;
+    startingTime?: Date;
+    endTime?: Date;
+    createdDate?: Date;
+
+    constructor(data?: IOrderGoodsListDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.room = _data["room"] ? Room.fromJS(_data["room"]) : <any>undefined;
+            this.user = _data["user"] ? Users.fromJS(_data["user"]) : <any>undefined;
+            this.startingTime = _data["startingTime"] ? new Date(_data["startingTime"].toString()) : <any>undefined;
+            this.endTime = _data["endTime"] ? new Date(_data["endTime"].toString()) : <any>undefined;
+            this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): OrderGoodsListDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new OrderGoodsListDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["room"] = this.room ? this.room.toJSON() : <any>undefined;
+        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
+        data["startingTime"] = this.startingTime ? this.startingTime.toISOString() : <any>undefined;
+        data["endTime"] = this.endTime ? this.endTime.toISOString() : <any>undefined;
+        data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IOrderGoodsListDto {
+    id?: number;
+    room?: Room | undefined;
+    user?: Users | undefined;
+    startingTime?: Date;
+    endTime?: Date;
+    createdDate?: Date;
+}
+
 export class Room implements IRoom {
     id?: number;
     name?: string | undefined;
     money?: number;
+    clientId?: string | undefined;
     state?: RoomState;
     personnelSituation?: RoomPersonnelSituation;
     powerSupply?: RoomPowerSupply;
@@ -1399,6 +1594,7 @@ export class Room implements IRoom {
             this.id = _data["id"];
             this.name = _data["name"];
             this.money = _data["money"];
+            this.clientId = _data["clientId"];
             this.state = _data["state"];
             this.personnelSituation = _data["personnelSituation"];
             this.powerSupply = _data["powerSupply"];
@@ -1422,6 +1618,7 @@ export class Room implements IRoom {
         data["id"] = this.id;
         data["name"] = this.name;
         data["money"] = this.money;
+        data["clientId"] = this.clientId;
         data["state"] = this.state;
         data["personnelSituation"] = this.personnelSituation;
         data["powerSupply"] = this.powerSupply;
@@ -1438,6 +1635,7 @@ export interface IRoom {
     id?: number;
     name?: string | undefined;
     money?: number;
+    clientId?: string | undefined;
     state?: RoomState;
     personnelSituation?: RoomPersonnelSituation;
     powerSupply?: RoomPowerSupply;
@@ -1445,18 +1643,19 @@ export interface IRoom {
 }
 
 export enum RoomState {
-    Open = 0,
-    Closed = 1,
+    Closed = 0,
+    Appointment = 1,
+    Open = 2,
 }
 
 export enum RoomPersonnelSituation {
-    Have = 0,
-    Not = 1,
+    Not = 0,
+    Have = 1,
 }
 
 export enum RoomPowerSupply {
-    Open = 0,
-    Closed = 1,
+    Closed = 0,
+    Open = 1,
 }
 
 export class OrderGoods implements IOrderGoods {
@@ -1587,9 +1786,126 @@ export interface IUsers {
     orderGoods?: OrderGoods[] | undefined;
 }
 
+export class CreateOrderGoodsCommand implements ICreateOrderGoodsCommand {
+    room?: Room;
+    user?: Users;
+    startingTime?: Date;
+    endTime?: Date;
+    createdDate?: Date;
+
+    constructor(data?: ICreateOrderGoodsCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.room = _data["room"] ? Room.fromJS(_data["room"]) : <any>undefined;
+            this.user = _data["user"] ? Users.fromJS(_data["user"]) : <any>undefined;
+            this.startingTime = _data["startingTime"] ? new Date(_data["startingTime"].toString()) : <any>undefined;
+            this.endTime = _data["endTime"] ? new Date(_data["endTime"].toString()) : <any>undefined;
+            this.createdDate = _data["createdDate"] ? new Date(_data["createdDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): CreateOrderGoodsCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateOrderGoodsCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["room"] = this.room ? this.room.toJSON() : <any>undefined;
+        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
+        data["startingTime"] = this.startingTime ? this.startingTime.toISOString() : <any>undefined;
+        data["endTime"] = this.endTime ? this.endTime.toISOString() : <any>undefined;
+        data["createdDate"] = this.createdDate ? this.createdDate.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface ICreateOrderGoodsCommand {
+    room?: Room;
+    user?: Users;
+    startingTime?: Date;
+    endTime?: Date;
+    createdDate?: Date;
+}
+
+export class PaginatedListOfRoom implements IPaginatedListOfRoom {
+    items?: Room[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+
+    constructor(data?: IPaginatedListOfRoom) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(Room.fromJS(item));
+            }
+            this.pageNumber = _data["pageNumber"];
+            this.totalPages = _data["totalPages"];
+            this.totalCount = _data["totalCount"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfRoom {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfRoom();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["pageNumber"] = this.pageNumber;
+        data["totalPages"] = this.totalPages;
+        data["totalCount"] = this.totalCount;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        return data;
+    }
+}
+
+export interface IPaginatedListOfRoom {
+    items?: Room[];
+    pageNumber?: number;
+    totalPages?: number;
+    totalCount?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+}
+
 export class CreateRoomCommand implements ICreateRoomCommand {
     name?: string;
     money?: number;
+    clientId?: string;
     state?: RoomState;
     personnelSituation?: RoomPersonnelSituation;
     powerSupply?: RoomPowerSupply;
@@ -1607,6 +1923,7 @@ export class CreateRoomCommand implements ICreateRoomCommand {
         if (_data) {
             this.name = _data["name"];
             this.money = _data["money"];
+            this.clientId = _data["clientId"];
             this.state = _data["state"];
             this.personnelSituation = _data["personnelSituation"];
             this.powerSupply = _data["powerSupply"];
@@ -1624,6 +1941,7 @@ export class CreateRoomCommand implements ICreateRoomCommand {
         data = typeof data === 'object' ? data : {};
         data["name"] = this.name;
         data["money"] = this.money;
+        data["clientId"] = this.clientId;
         data["state"] = this.state;
         data["personnelSituation"] = this.personnelSituation;
         data["powerSupply"] = this.powerSupply;
@@ -1634,6 +1952,7 @@ export class CreateRoomCommand implements ICreateRoomCommand {
 export interface ICreateRoomCommand {
     name?: string;
     money?: number;
+    clientId?: string;
     state?: RoomState;
     personnelSituation?: RoomPersonnelSituation;
     powerSupply?: RoomPowerSupply;
@@ -1643,6 +1962,7 @@ export class UpdateRoomCommand implements IUpdateRoomCommand {
     id?: number;
     name?: string;
     money?: number;
+    clientId?: string;
     state?: RoomState;
     personnelSituation?: RoomPersonnelSituation;
     powerSupply?: RoomPowerSupply;
@@ -1661,6 +1981,7 @@ export class UpdateRoomCommand implements IUpdateRoomCommand {
             this.id = _data["id"];
             this.name = _data["name"];
             this.money = _data["money"];
+            this.clientId = _data["clientId"];
             this.state = _data["state"];
             this.personnelSituation = _data["personnelSituation"];
             this.powerSupply = _data["powerSupply"];
@@ -1679,6 +2000,7 @@ export class UpdateRoomCommand implements IUpdateRoomCommand {
         data["id"] = this.id;
         data["name"] = this.name;
         data["money"] = this.money;
+        data["clientId"] = this.clientId;
         data["state"] = this.state;
         data["personnelSituation"] = this.personnelSituation;
         data["powerSupply"] = this.powerSupply;
@@ -1690,6 +2012,7 @@ export interface IUpdateRoomCommand {
     id?: number;
     name?: string;
     money?: number;
+    clientId?: string;
     state?: RoomState;
     personnelSituation?: RoomPersonnelSituation;
     powerSupply?: RoomPowerSupply;
