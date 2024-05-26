@@ -15,7 +15,7 @@ const initialState = {
 }
 
 var mqtt_url = "ws://101.33.233.99/mqtt";
-var opts = { username: "admin", password: "mhh1112", port: 8083, }
+var opts = { username: "admin1", password: "mhh1112", port: 8083, }
 
 const columns = [
   {
@@ -206,11 +206,15 @@ const HomeDiv = ({ props }) => {
     client.on('message', (topic, message) => {
       // 收到消息后更新组件状态
       var messageString = message.toString()
-      if (messageString == 'D_on' || messageString == 'D_off') {
+      if (messageString == 'D_on' || messageString == 'D_off' || messageString == 'YYDD') {
         props.getRoomList({ pageNumber: 1, pageSize: 100 })
       }
       console.log(messageString)
       var mes = isJson(messageString)
+      console.log(mes?.type)
+      if(mes?.type == 'ddopen'){
+        props.getRoomList({ pageNumber: 1, pageSize: 100 })
+      }
       for (let i = 0; i < roomListData.length; i++) {
         if (roomListData[i].clientId == mes?.topic) {
           var newRoom = roomListData[i]

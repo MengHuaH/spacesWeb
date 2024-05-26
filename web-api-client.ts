@@ -28,7 +28,7 @@ export class OrderGoodsClient implements IOrderGoodsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl ?? "https://172.27.110.74:5001";
+        this.baseUrl = baseUrl ?? "http://101.33.233.99:5000";
     }
 
     getOrderGoodsWithPagination(orderId: string | null | undefined, phoneNumber: number, pageNumber: number, pageSize: number): Promise<PaginatedListOfOrderGoodsListDto> {
@@ -254,7 +254,7 @@ export class RoomClient implements IRoomClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl ?? "https://172.27.110.74:5001";
+        this.baseUrl = baseUrl ?? "http://101.33.233.99:5000";
     }
 
     getRoomWithPagination(roomName: string | null | undefined, pageNumber: number, pageSize: number): Promise<PaginatedListOfRoomWithPaginationDto> {
@@ -470,7 +470,7 @@ export class TodoItemsClient implements ITodoItemsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl ?? "https://172.27.110.74:5001";
+        this.baseUrl = baseUrl ?? "http://101.33.233.99:5000";
     }
 
     getTodoItemsWithPagination(listId: number, pageNumber: number, pageSize: number): Promise<PaginatedListOfTodoItemBriefDto> {
@@ -684,7 +684,7 @@ export class TodoListsClient implements ITodoListsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl ?? "https://172.27.110.74:5001";
+        this.baseUrl = baseUrl ?? "http://101.33.233.99:5000";
     }
 
     getTodoLists(): Promise<TodosVm> {
@@ -853,7 +853,7 @@ export class UserClient implements IUserClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl ?? "https://172.27.110.74:5001";
+        this.baseUrl = baseUrl ?? "http://101.33.233.99:5000";
     }
 
     getUserList(pageNumber: number, pageSize: number): Promise<PaginatedListOfUsers> {
@@ -1106,7 +1106,7 @@ export class UsersClient implements IUsersClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl ?? "https://172.27.110.74:5001";
+        this.baseUrl = baseUrl ?? "http://101.33.233.99:5000";
     }
 
     postApiUsersRegister(registration: RegisterRequest | undefined): Promise<void> {
@@ -1538,7 +1538,7 @@ export class WeatherForecastsClient implements IWeatherForecastsClient {
 
     constructor(baseUrl?: string, http?: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> }) {
         this.http = http ? http : window as any;
-        this.baseUrl = baseUrl ?? "https://172.27.110.74:5001";
+        this.baseUrl = baseUrl ?? "http://101.33.233.99:5000";
     }
 
     getWeatherForecasts(): Promise<WeatherForecast[]> {

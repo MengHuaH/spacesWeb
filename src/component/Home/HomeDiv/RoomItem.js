@@ -34,6 +34,7 @@ const RoomItem = ({ props, onClick=()=>{}}) => {
       if(vlaue[i].endTime > new Date()){
         if(vlaue[i].orderStatus == 1){
           status = 1
+          i = vlaue.length
         }
         else if(vlaue[i].orderStatus == 2){
           status = 2
