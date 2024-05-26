@@ -23,36 +23,53 @@ const RoomItem = ({ props, onClick=()=>{}}) => {
   const [state, dispatch] = useReducer(reducer, initialState)
 
   function roomState(vlaue) {
-    switch (vlaue) {
-      case 0:
-        return {
-          text: '无人使用',
-          className: ''
+    if(vlaue.length == 0){
+      return {
+        text:'无人使用',
+        className:'',
+      }
+    }
+    var status = 0
+    for (let i = 0; i < vlaue.length; i++) {
+      if(vlaue[i].endTime > new Date()){
+        if(vlaue[i].orderStatus == 1){
+          status = 1
         }
-      case 1:
-        return {
-          text: '有预约',
-          className: style.appointment
+        else if(vlaue[i].orderStatus == 2){
+          status = 2
         }
-      case 2:
-        return {
-          text: '正在使用',
-          className: style.inUse
-        }
+      }
+    }
+    if(status == 1){
+      return {
+        text:'正在使用',
+        className:style.inUse,
+      }
+    }
+    else if(status == 2){
+      return {
+        text:'有预约',
+        className:style.appointment,
+      }
+    }else{
+      return {
+        text:'无人使用',
+        className:'',
+      }
     }
   }
 
   useEffect(() => {
-    console.log(props.data)
   }, [])
   return (
     <>
       <Card
         title={props.data.name}
         style={{ width: '190px' }}
-        extra={roomState(props.data.state).text}
-        className={roomState(props.data.state).className}
+        extra={roomState(props.data?.orderGoods)?.text}
+        className={roomState(props.data?.orderGoods)?.className}
         onClick={onClick}
+        key={props.data}
       >
         <Row className={style.row}>
           <Col span={12} style={{ textAlign: 'right' }}>人员情况：</Col>

@@ -3,14 +3,15 @@ import RoomItem from './RoomItem';
 import { Card, Flex, Modal, Table, Row, Col, Switch, Button } from 'antd';
 import { PoweroffOutlined } from '@ant-design/icons';
 import mqtt from 'mqtt';
-import { Room, RoomClient } from 'api';
+import { OrderGoodsClient, Room, RoomClient } from 'api';
 
 const initialState = {
   roomListData: [],
   room: Room,
   isModalOpen: false,
-  isMOpen:false,
-  isDOpen:false,
+  isMOpen: false,
+  isDOpen: false,
+  roomOrder:[],
 }
 
 var mqtt_url = "ws://101.33.233.99/mqtt";
@@ -18,19 +19,25 @@ var opts = { username: "admin", password: "mhh1112", port: 8083, }
 
 const columns = [
   {
-    title: '房间名称',
-    dataIndex: 'name',
-    key: 'name',
+    title: '手机号码',
+    dataIndex: ['user','phoneNumber'],
+    key: 'phoneNumber',
   },
   {
-    title: '价格（小时）',
-    dataIndex: 'money',
-    key: 'money',
+    title: '开始时间',
+    dataIndex: 'startingTime',
+    key: 'startingTime',
+    render: (res) => {
+      return res.toLocaleString()
+    }
   },
   {
-    title: '房控设备ID',
-    dataIndex: 'clientId',
-    key: 'clientId',
+    title: '结束时间',
+    dataIndex: 'endTime',
+    key: 'endTime',
+    render: (res) => {
+      return res.toLocaleString()
+    }
   }
 ]
 
@@ -117,6 +124,12 @@ function reducer(state, action) {
         isDOpen: action.data
       };
     }
+    case 'changed_roomOrder': {
+      return {
+        ...state,
+        roomOrder: action.data
+      };
+    }
   }
 }
 
@@ -137,14 +150,14 @@ const HomeDiv = ({ props }) => {
   function onShowModal(value) {
     dispatch({ type: 'changed_room', data: value })
     dispatch({ type: 'changed_isModalOpen', data: true })
-    console.log(room)
+    getRoomOrder(value)
   }
-  function onCancel(){
+  function onCancel() {
     dispatch({ type: 'changed_room', data: initialState.room })
     dispatch({ type: 'changed_isModalOpen', data: false })
   }
 
-  function onMState(){
+  function onMState() {
     client.publish(room.clientId, "M_on", { qos: 0 });
     dispatch({ type: 'changed_isMOpen', data: true })
     setTimeout(() => {
@@ -152,29 +165,36 @@ const HomeDiv = ({ props }) => {
     }, 10000);
   }
 
-  async function  onDState(e){
+  async function onDState(e) {
     var dState
     var newRoom = room
-    if(e){
+    if (e) {
       dState = "D_on"
       newRoom.powerSupply = 1
-    }else{
+    } else {
       dState = "D_off"
       newRoom.powerSupply = 0
     }
-    console.log(newRoom)
     var roomClient = new RoomClient()
     await roomClient.updateRoom(newRoom)
-    props.getRoomList({ pageNumber: 1, pageSize: 100 })
+    // props.getRoomList({ pageNumber: 1, pageSize: 100 })
     client.publish(room.clientId, dState, { qos: 0 });
     dispatch({ type: 'changed_isDOpen', data: true })
     setTimeout(() => {
       dispatch({ type: 'changed_isDOpen', data: false })
     }, 2000);
   }
+
+  async function getRoomOrder(value){
+    var client = new OrderGoodsClient()
+    await client.getOrderGoodsQuery(value.id,null,null,null).then(res => {
+      dispatch({ type: 'changed_roomOrder', data: res })
+    })
+  }
+
+
   useEffect(() => {
     dispatch({ type: 'changed_roomListData', data: props.roomListData })
-    console.log(roomListData)
     const client = mqtt.connect(mqtt_url, opts);
     setClient(client)
     client.on('connect', () => {
@@ -185,8 +205,12 @@ const HomeDiv = ({ props }) => {
 
     client.on('message', (topic, message) => {
       // 收到消息后更新组件状态
-      var mes = isJson(message.toString())
-      //console.log(mes)
+      var messageString = message.toString()
+      if (messageString == 'D_on' || messageString == 'D_off') {
+        props.getRoomList({ pageNumber: 1, pageSize: 100 })
+      }
+      console.log(messageString)
+      var mes = isJson(messageString)
       for (let i = 0; i < roomListData.length; i++) {
         if (roomListData[i].clientId == mes?.topic) {
           var newRoom = roomListData[i]
@@ -204,6 +228,9 @@ const HomeDiv = ({ props }) => {
     };
   }, [props]);
 
+  useEffect(() => {
+    console.log(roomListData)
+  },[roomListData])
   return (
     <>
       <Flex wrap="wrap" gap="small">
@@ -223,7 +250,7 @@ const HomeDiv = ({ props }) => {
       >
         <Table
           columns={columns}
-          dataSource={data}
+          dataSource={state.roomOrder}
           pagination={{
             position: ['none', 'none'],
           }}
@@ -246,9 +273,9 @@ const HomeDiv = ({ props }) => {
         >
           <Row>
             <Col span={3}>房门：</Col>
-            <Col span={9}><Button disabled={isMOpen} type="primary" shape="circle" icon={<PoweroffOutlined  />} size='small' onClick={() => onMState()}/></Col>
+            <Col span={9}><Button disabled={isMOpen} type="primary" shape="circle" icon={<PoweroffOutlined />} size='small' onClick={() => onMState()} /></Col>
             <Col span={3}>电源：</Col>
-            <Col span={9}><Switch checkedChildren="开启" unCheckedChildren="关闭" disabled={isDOpen} checked={room.powerSupply == 1 ? true : false} onClick={(e) => onDState(e)}/></Col>
+            <Col span={9}><Switch checkedChildren="开启" unCheckedChildren="关闭" disabled={isDOpen} checked={room.powerSupply == 1 ? true : false} onClick={(e) => onDState(e)} /></Col>
           </Row>
         </Card>
       </Modal>
